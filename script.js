@@ -73,15 +73,28 @@ function moveHeart() {
 
 heartBtn.onmouseover = () => {
   misses++;
-  tease.innerText = teases[Math.min(misses - 1, teases.length - 1)];
-  moveHeart();
 
-  if (misses >= 5) {
+  // Show tease text
+  tease.innerText = teases[Math.min(misses - 1, teases.length - 1)];
+
+  // Move heart while game is active
+  if (misses < 5) {
+    moveHeart();
+  }
+
+  // End game after 5 misses
+  if (misses === 5) {
     heartBtn.style.display = "none";
-    tease.innerText = "";
-    setTimeout(showQuestion, 800);
+
+    setTimeout(() => {
+      tease.innerText = "";
+      text.innerHTML = "Alright… I cheated 😌<br>I wanted to ask you something.";
+    }, 600);
+
+    setTimeout(showQuestion, 2200);
   }
 };
+
 
 function showQuestion() {
   text.innerHTML = "";
@@ -130,4 +143,5 @@ function startConfetti() {
 
   draw();
 }
+
 
