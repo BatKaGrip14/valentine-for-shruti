@@ -71,18 +71,15 @@ function moveHeart() {
   heartBtn.style.top = Math.random() * (window.innerHeight - 80) + "px";
 }
 
-heartBtn.onmouseover = () => {
+heartBtn.onclick = () => {
   misses++;
 
-  // Show tease text
   tease.innerText = teases[Math.min(misses - 1, teases.length - 1)];
 
-  // Move heart while game is active
   if (misses < 5) {
     moveHeart();
   }
 
-  // End game after 5 misses
   if (misses === 5) {
     heartBtn.style.display = "none";
 
@@ -94,6 +91,7 @@ heartBtn.onmouseover = () => {
     setTimeout(showQuestion, 2200);
   }
 };
+
 
 
 function showQuestion() {
