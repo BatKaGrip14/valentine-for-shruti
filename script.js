@@ -22,94 +22,114 @@ const teases = [
   "Okay okay… I give up 🙄"
 ];
 
-let line = 0, char = 0, misses = 0;
+let line = 0;
+let char = 0;
+let misses = 0;
+let typing = false;
 
 mainBtn.style.display = "none";
 heartBtn.style.display = "none";
+question.style.display = "none";
 
-function typeText() {
-  if (char < lines[line].length) {
-    text.innerHTML += lines[line][char++];
-    setTimeout(typeText, 70);
-  } else {
-    mainBtn.style.display = "inline-block";
+/* ---------- TYPING ENGINE ---------- */
+function typeLine(callback) {
+  typing = true;
+  text.innerHTML = "";
+  char = 0;
+
+  function type() {
+    if (char < lines[line].length) {
+      text.innerHTML += lines[line][char++];
+      setTimeout(type, 70);
+    } else {
+      typing = false;
+      if (callback) callback();
+    }
   }
+
+  type();
 }
 
-typeText();
+/* ---------- START ---------- */
+typeLine(() => {
+  mainBtn.style.display = "inline-block";
+});
 
+/* ---------- MAIN BUTTON ---------- */
 mainBtn.onclick = () => {
   music.play();
   mainBtn.style.display = "none";
-
-  const interval = setInterval(() => {
-    nextLine();
-
-    if (line >= lines.length - 1) {
-      clearInterval(interval);
-    }
-  }, 2000);
+  advanceStory();
 };
 
-
-function nextLine() {
+/* ---------- STORY FLOW ---------- */
+function advanceStory() {
   line++;
-  char = 0;
-  text.innerHTML = "";
-  typeText();
 
-  if (line === 3) {
-    setTimeout(() => {
-      heartBtn.style.display = "inline-block";
-      moveHeart();
-    }, 600);
+  if (line < lines.length) {
+    typeLine(() => {
+      if (line === lines.length - 1) {
+        setTimeout(startHeartGame, 800);
+      } else {
+        setTimeout(advanceStory, 1200);
+      }
+    });
   }
 }
 
+/* ---------- HEART GAME ---------- */
+function startHeartGame() {
+  heartBtn.style.display = "inline-block";
+  moveHeart();
+}
+
 function moveHeart() {
-  heartBtn.style.left = Math.random() * (window.innerWidth - 80) + "px";
-  heartBtn.style.top = Math.random() * (window.innerHeight - 80) + "px";
+  heartBtn.style.left = Math.random() * (window.innerWidth - 100) + "px";
+  heartBtn.style.top = Math.random() * (window.innerHeight - 100) + "px";
 }
 
 heartBtn.onclick = () => {
   misses++;
-
   tease.innerText = teases[Math.min(misses - 1, teases.length - 1)];
 
   if (misses < 5) {
     moveHeart();
-  }
-
-  if (misses === 5) {
-    heartBtn.style.display = "none";
-
-    setTimeout(() => {
-      tease.innerText = "";
-      text.innerHTML = "Alright… I cheated 😌<br>I wanted to ask you something.";
-    }, 600);
-
-    setTimeout(showQuestion, 2200);
+  } else {
+    endHeartGame();
   }
 };
 
+function endHeartGame() {
+  heartBtn.style.display = "none";
+  tease.innerText = "";
 
+  setTimeout(() => {
+    text.innerHTML = "Alright… I cheated 😌<br>I wanted to ask you something.";
+  }, 600);
 
+  setTimeout(showQuestion, 2200);
+}
+
+/* ---------- QUESTION ---------- */
 function showQuestion() {
   text.innerHTML = "";
   question.style.display = "block";
 }
 
+/* ---------- NO BUTTON ---------- */
 noBtn.onmouseover = () => {
   noBtn.style.position = "absolute";
-  noBtn.style.left = Math.random() * (window.innerWidth - 100) + "px";
-  noBtn.style.top = Math.random() * (window.innerHeight - 100) + "px";
+  noBtn.style.left = Math.random() * (window.innerWidth - 120) + "px";
+  noBtn.style.top = Math.random() * (window.innerHeight - 120) + "px";
 };
 
+/* ---------- YES BUTTON ---------- */
 yesBtn.onclick = () => {
   question.innerHTML = "<h2>You just made my Valentine perfect 💖</h2>";
   startConfetti();
 };
 
+/* ---------- CONFETTI ---------- */
 function startConfetti() {
   const canvas = document.getElementById("confetti");
   const ctx = canvas.getContext("2d");
@@ -117,11 +137,11 @@ function startConfetti() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  const pieces = Array.from({ length: 150 }, () => ({
+  const pieces = Array.from({ length: 160 }, () => ({
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,
     r: Math.random() * 6 + 4,
-    d: Math.random() * 5 + 1
+    d: Math.random() * 5 + 2
   }));
 
   function draw() {
@@ -141,5 +161,3 @@ function startConfetti() {
 
   draw();
 }
-
-
