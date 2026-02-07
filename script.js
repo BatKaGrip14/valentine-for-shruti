@@ -32,16 +32,25 @@ heartBtn.style.display = "none";
 question.style.display = "none";
 
 /* ---------- TYPEWRITER ---------- */
-function typeLine() {
-  if (charIndex < lines[lineIndex].length) {
-    text.innerHTML += lines[lineIndex][charIndex++];
-    setTimeout(typeLine, 70);
-  } else {
-    if (stage === "intro") mainBtn.style.display = "inline-block";
+function typeLine(callback) {
+  text.innerHTML = "";
+  charIndex = 0;
+
+  function type() {
+    if (charIndex < lines[lineIndex].length) {
+      text.innerHTML += lines[lineIndex][charIndex++];
+      setTimeout(type, 70);
+    } else if (callback) {
+      callback();
+    }
   }
+  type();
 }
 
-typeLine();
+/* ---------- START ---------- */
+typeLine(() => {
+  mainBtn.style.display = "inline-block";
+});
 
 /* ---------- MAIN BUTTON ---------- */
 mainBtn.onclick = () => {
@@ -51,34 +60,42 @@ mainBtn.onclick = () => {
   nextLine();
 };
 
-/* ---------- STORY ---------- */
+/* ---------- STORY FLOW ---------- */
 function nextLine() {
   lineIndex++;
-  charIndex = 0;
-  text.innerHTML = "";
 
   if (lineIndex < lines.length) {
-    typeLine();
-
-    if (lineIndex === lines.length - 1) {
-      setTimeout(startHeartGame, 1200);
-    } else {
-      setTimeout(nextLine, 2000);
-    }
+    typeLine(() => {
+      if (lineIndex === lines.length - 1) {
+        startHeartGame(); // start ONCE
+      } else {
+        setTimeout(nextLine, 1500);
+      }
+    });
   }
 }
 
 /* ---------- HEART GAME ---------- */
 function startHeartGame() {
+  if (stage === "heart") return;
+
   stage = "heart";
   heartBtn.style.display = "inline-block";
   moveHeart();
 }
 
 function moveHeart() {
+  const container = document.querySelector(".container");
+
+  const maxX = container.offsetWidth - heartBtn.offsetWidth;
+  const maxY = container.offsetHeight - heartBtn.offsetHeight;
+
+  const x = Math.random() * maxX;
+  const y = Math.random() * maxY;
+
   heartBtn.style.position = "absolute";
-  heartBtn.style.left = Math.random() * 80 + "%";
-  heartBtn.style.top = Math.random() * 80 + "%";
+  heartBtn.style.left = x + "px";
+  heartBtn.style.top = y + "px";
 }
 
 heartBtn.onclick = () => {
@@ -99,7 +116,8 @@ function endHeartGame() {
   heartBtn.style.display = "none";
   tease.innerText = "";
 
-  text.innerHTML = "Alright… I cheated 😌<br>I wanted to ask you something.";
+  text.innerHTML =
+    "Alright… I cheated 😌<br>I wanted to ask you something.";
 
   setTimeout(showQuestion, 2000);
 }
@@ -119,39 +137,6 @@ noBtn.onmouseover = () => {
 
 /* ---------- YES BUTTON ---------- */
 yesBtn.onclick = () => {
-  question.innerHTML = "<h2>You just made my Valentine perfect 💖</h2>";
-  startConfetti();
+  question.innerHTML =
+    "<h2>You just made my Valentine perfect 💖</h2>";
 };
-
-/* ---------- CONFETTI ---------- */
-function startConfetti() {
-  const canvas = document.getElementById("confetti");
-  const ctx = canvas.getContext("2d");
-
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-
-  const pieces = Array.from({ length: 120 }, () => ({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    r: Math.random() * 6 + 4,
-    d: Math.random() * 4 + 2
-  }));
-
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "hotpink";
-
-    pieces.forEach(p => {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fill();
-      p.y += p.d;
-      if (p.y > canvas.height) p.y = 0;
-    });
-
-    requestAnimationFrame(draw);
-  }
-
-  draw();
-}
