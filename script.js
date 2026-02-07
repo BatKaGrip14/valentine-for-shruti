@@ -51,11 +51,16 @@ typeLine(() => mainBtn.style.display = "inline-block");
 
 /* START */
 mainBtn.onclick = () => {
-  music.play();
+  music.currentTime = 0;
+  music.play().catch(() => {
+    console.log("Audio blocked until user interaction");
+  });
+
   mainBtn.style.display = "none";
   stage = "story";
   nextLine();
 };
+
 
 /* STORY */
 function nextLine() {
@@ -129,3 +134,4 @@ yesBtn.onclick = () => {
     </p>
   `;
 };
+
