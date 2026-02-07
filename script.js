@@ -22,73 +22,68 @@ const teases = [
   "Okay okay… I give up 🙄"
 ];
 
-let line = 0;
-let char = 0;
+let lineIndex = 0;
+let charIndex = 0;
 let misses = 0;
-let typing = false;
+let stage = "intro";
 
 mainBtn.style.display = "none";
 heartBtn.style.display = "none";
 question.style.display = "none";
 
-/* ---------- TYPING ENGINE ---------- */
-function typeLine(callback) {
-  typing = true;
-  text.innerHTML = "";
-  char = 0;
-
-  function type() {
-    if (char < lines[line].length) {
-      text.innerHTML += lines[line][char++];
-      setTimeout(type, 70);
-    } else {
-      typing = false;
-      if (callback) callback();
-    }
+/* ---------- TYPEWRITER ---------- */
+function typeLine() {
+  if (charIndex < lines[lineIndex].length) {
+    text.innerHTML += lines[lineIndex][charIndex++];
+    setTimeout(typeLine, 70);
+  } else {
+    if (stage === "intro") mainBtn.style.display = "inline-block";
   }
-
-  type();
 }
 
-/* ---------- START ---------- */
-typeLine(() => {
-  mainBtn.style.display = "inline-block";
-});
+typeLine();
 
 /* ---------- MAIN BUTTON ---------- */
 mainBtn.onclick = () => {
   music.play();
   mainBtn.style.display = "none";
-  advanceStory();
+  stage = "story";
+  nextLine();
 };
 
-/* ---------- STORY FLOW ---------- */
-function advanceStory() {
-  line++;
+/* ---------- STORY ---------- */
+function nextLine() {
+  lineIndex++;
+  charIndex = 0;
+  text.innerHTML = "";
 
-  if (line < lines.length) {
-    typeLine(() => {
-      if (line === lines.length - 1) {
-        setTimeout(startHeartGame, 800);
-      } else {
-        setTimeout(advanceStory, 1200);
-      }
-    });
+  if (lineIndex < lines.length) {
+    typeLine();
+
+    if (lineIndex === lines.length - 1) {
+      setTimeout(startHeartGame, 1200);
+    } else {
+      setTimeout(nextLine, 2000);
+    }
   }
 }
 
 /* ---------- HEART GAME ---------- */
 function startHeartGame() {
+  stage = "heart";
   heartBtn.style.display = "inline-block";
   moveHeart();
 }
 
 function moveHeart() {
-  heartBtn.style.left = Math.random() * (window.innerWidth - 100) + "px";
-  heartBtn.style.top = Math.random() * (window.innerHeight - 100) + "px";
+  heartBtn.style.position = "absolute";
+  heartBtn.style.left = Math.random() * 80 + "%";
+  heartBtn.style.top = Math.random() * 80 + "%";
 }
 
 heartBtn.onclick = () => {
+  if (stage !== "heart") return;
+
   misses++;
   tease.innerText = teases[Math.min(misses - 1, teases.length - 1)];
 
@@ -100,14 +95,13 @@ heartBtn.onclick = () => {
 };
 
 function endHeartGame() {
+  stage = "question";
   heartBtn.style.display = "none";
   tease.innerText = "";
 
-  setTimeout(() => {
-    text.innerHTML = "Alright… I cheated 😌<br>I wanted to ask you something.";
-  }, 600);
+  text.innerHTML = "Alright… I cheated 😌<br>I wanted to ask you something.";
 
-  setTimeout(showQuestion, 2200);
+  setTimeout(showQuestion, 2000);
 }
 
 /* ---------- QUESTION ---------- */
@@ -119,8 +113,8 @@ function showQuestion() {
 /* ---------- NO BUTTON ---------- */
 noBtn.onmouseover = () => {
   noBtn.style.position = "absolute";
-  noBtn.style.left = Math.random() * (window.innerWidth - 120) + "px";
-  noBtn.style.top = Math.random() * (window.innerHeight - 120) + "px";
+  noBtn.style.left = Math.random() * 80 + "%";
+  noBtn.style.top = Math.random() * 80 + "%";
 };
 
 /* ---------- YES BUTTON ---------- */
@@ -137,11 +131,11 @@ function startConfetti() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  const pieces = Array.from({ length: 160 }, () => ({
+  const pieces = Array.from({ length: 120 }, () => ({
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,
     r: Math.random() * 6 + 4,
-    d: Math.random() * 5 + 2
+    d: Math.random() * 4 + 2
   }));
 
   function draw() {
