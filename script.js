@@ -41,8 +41,16 @@ typeText();
 mainBtn.onclick = () => {
   music.play();
   mainBtn.style.display = "none";
-  nextLine();
+
+  const interval = setInterval(() => {
+    nextLine();
+
+    if (line >= lines.length - 1) {
+      clearInterval(interval);
+    }
+  }, 2000);
 };
+
 
 function nextLine() {
   line++;
@@ -122,3 +130,4 @@ function startConfetti() {
 
   draw();
 }
+
