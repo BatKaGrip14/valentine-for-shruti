@@ -22,8 +22,8 @@ const teases = [
   "Okay okay… I give up 🙄"
 ];
 
-let lineIndex = 0;
-let charIndex = 0;
+let line = 0;
+let char = 0;
 let misses = 0;
 let stage = "intro";
 
@@ -31,14 +31,14 @@ mainBtn.style.display = "none";
 heartBtn.style.display = "none";
 question.style.display = "none";
 
-/* ---------- TYPEWRITER ---------- */
+/* TYPEWRITER */
 function typeLine(callback) {
   text.innerHTML = "";
-  charIndex = 0;
+  char = 0;
 
   function type() {
-    if (charIndex < lines[lineIndex].length) {
-      text.innerHTML += lines[lineIndex][charIndex++];
+    if (char < lines[line].length) {
+      text.innerHTML += lines[line][char++];
       setTimeout(type, 70);
     } else if (callback) {
       callback();
@@ -47,12 +47,9 @@ function typeLine(callback) {
   type();
 }
 
-/* ---------- START ---------- */
-typeLine(() => {
-  mainBtn.style.display = "inline-block";
-});
+typeLine(() => mainBtn.style.display = "inline-block");
 
-/* ---------- MAIN BUTTON ---------- */
+/* START */
 mainBtn.onclick = () => {
   music.play();
   mainBtn.style.display = "none";
@@ -60,14 +57,13 @@ mainBtn.onclick = () => {
   nextLine();
 };
 
-/* ---------- STORY FLOW ---------- */
+/* STORY */
 function nextLine() {
-  lineIndex++;
-
-  if (lineIndex < lines.length) {
+  line++;
+  if (line < lines.length) {
     typeLine(() => {
-      if (lineIndex === lines.length - 1) {
-        startHeartGame(); // start ONCE
+      if (line === lines.length - 1) {
+        startHeartGame();
       } else {
         setTimeout(nextLine, 1500);
       }
@@ -75,10 +71,8 @@ function nextLine() {
   }
 }
 
-/* ---------- HEART GAME ---------- */
+/* HEART GAME */
 function startHeartGame() {
-  if (stage === "heart") return;
-
   stage = "heart";
   heartBtn.style.display = "inline-block";
   moveHeart();
@@ -86,16 +80,11 @@ function startHeartGame() {
 
 function moveHeart() {
   const container = document.querySelector(".container");
-
   const maxX = container.offsetWidth - heartBtn.offsetWidth;
   const maxY = container.offsetHeight - heartBtn.offsetHeight;
 
-  const x = Math.random() * maxX;
-  const y = Math.random() * maxY;
-
-  heartBtn.style.position = "absolute";
-  heartBtn.style.left = x + "px";
-  heartBtn.style.top = y + "px";
+  heartBtn.style.left = Math.random() * maxX + "px";
+  heartBtn.style.top = Math.random() * maxY + "px";
 }
 
 heartBtn.onclick = () => {
@@ -107,36 +96,36 @@ heartBtn.onclick = () => {
   if (misses < 5) {
     moveHeart();
   } else {
-    endHeartGame();
+    heartBtn.style.display = "none";
+    tease.innerText = "";
+    text.innerHTML = "Alright… I cheated 😌<br>I wanted to ask you something.";
+    setTimeout(showQuestion, 2000);
   }
 };
 
-function endHeartGame() {
-  stage = "question";
-  heartBtn.style.display = "none";
-  tease.innerText = "";
-
-  text.innerHTML =
-    "Alright… I cheated 😌<br>I wanted to ask you something.";
-
-  setTimeout(showQuestion, 2000);
-}
-
-/* ---------- QUESTION ---------- */
+/* QUESTION */
 function showQuestion() {
   text.innerHTML = "";
   question.style.display = "block";
 }
 
-/* ---------- NO BUTTON ---------- */
-noBtn.onmouseover = () => {
+/* NO = IMPOSSIBLE */
+noBtn.onmouseover = noBtn.onclick = () => {
   noBtn.style.position = "absolute";
   noBtn.style.left = Math.random() * 80 + "%";
   noBtn.style.top = Math.random() * 80 + "%";
 };
 
-/* ---------- YES BUTTON ---------- */
+/* YES = BETTER ENDING */
 yesBtn.onclick = () => {
-  question.innerHTML =
-    "<h2>You just made my Valentine perfect 💖</h2>";
+  question.innerHTML = `
+    <h2>Yayyy 💖</h2>
+    <p>
+      You just made my Valentine perfect.<br>
+      I owe you chocolates, smiles, and bad jokes 😌
+    </p>
+    <p style="margin-top:15px;">
+      See you on Valentine’s Day, Shruti 🌹
+    </p>
+  `;
 };
