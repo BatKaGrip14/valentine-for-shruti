@@ -51,9 +51,15 @@ typeLine(() => mainBtn.style.display = "inline-block");
 
 /* START */
 mainBtn.onclick = () => {
+  // Force browser to allow audio
+  music.muted = false;
+  music.volume = 0.7;
   music.currentTime = 0;
-  music.play().catch(() => {
-    console.log("Audio blocked until user interaction");
+
+  music.play().then(() => {
+    console.log("Music started");
+  }).catch(err => {
+    console.log("Audio blocked:", err);
   });
 
   mainBtn.style.display = "none";
@@ -134,4 +140,5 @@ yesBtn.onclick = () => {
     </p>
   `;
 };
+
 
